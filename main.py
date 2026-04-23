@@ -1,6 +1,7 @@
 import telebot
 import os
 from dotenv import load_dotenv
+from random import choice
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
@@ -8,7 +9,7 @@ TOKEN = os.getenv("TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
 sections = {
-    "Космос": [
+    "Космос🪐": [
         "В космосе нет атмосферы, а значит, звуковые волны не могут распространяться. Там царит абсолютная тишина.",
         "Существует экзопланета 55 Cancri e, которая, по мнению астрономов, на треть состоит из чистого алмаза.",
         "Следы астронавтов на Луне могут сохраняться миллионы лет, так как там нет ветра или воды, чтобы их стереть.",
@@ -20,7 +21,7 @@ sections = {
         "Астронавты описывают запах космоса как смесь раскаленного металла, жареного мяса и сварочного дыма.",
         "Одна чайная ложка вещества нейтронной звезды весила бы около 6 миллиардов тонн."
     ],
-    "Дикая природа": [
+    "Дикая природа🌅": [
         "Сердце синего кита настолько велико, что человек мог бы проплыть по его артериям.",
         "Медуза Turritopsis dohrnii способна бесконечно возвращаться из взрослой стадии в стадию полипа, что делает её биологически бессмертной.",
         "Вороны способны запоминать лица людей и могут хранить обиду или проявлять благодарность годами.",
@@ -32,7 +33,7 @@ sections = {
         "Слоны — единственные млекопитающие, которые физически не умеют прыгать.",
         "У ленивцев настолько медленный метаболизм, что переваривание одного приема пищи может занимать до двух недель."
     ],
-    "Технологии": [
+    "Технологии🤖": [
         "Первый вирус для ПК назывался «Brain» и был написан в 1986 году двумя братьями из Пакистана.",
         "Слово «робот» впервые появилось в пьесе Карела Чапека в 1920 году.",
         "Современный смартфон мощнее, чем все компьютеры NASA, использовавшиеся для высадки на Луну в 1969 году.",
@@ -45,9 +46,12 @@ sections = {
         "В 1956 году первый жесткий диск IBM весил более тонны и вмещал всего 5 мегабайт данных."
     ]
 }
+
+all_facts = [fact for facts in sections.values() for fact in facts]
+
 @bot.message_handler(commands=["start"])
 def start(message):
-    bot.send_message(message.chat.id, f"Привет, <b>{message.from_user.first_name}</b> \n\n Я бот-справочник. Выбери раздел:", parse_mode="HTML")
+    bot.send_message(message.chat.id, f"Привет, <b>{message.from_user.first_name}</b> \n\n Я бот-справочник. Выбери раздел:", parse_mode="HTML", reply_markup=mainKeyboard())
     
 
 @bot.message_handler(commands=["help"])
@@ -58,9 +62,13 @@ def mainKeyboard():
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     for name in sections:
         keyboard.add(telebot.types.KeyboardButton(name))
-    keyboard.add(telebot.types.KeyboardButton("Случайный факт"))
+    keyboard.add(telebot.types.KeyboardButton("Случайный факт🎲"))
     keyboard.add(telebot.types.KeyboardButton("Закрыть"))
     return keyboard
+
+@bot.message_handler(func = lambda m: m.text == "Случайный факт🎲")
+def random_fact(message):
+    bot.send_message(message.chat.id, choice(all_facts), reply_markup=mainKeyboard())
 
 print("Hello World!")
 bot.polling()
