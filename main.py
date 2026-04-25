@@ -52,7 +52,6 @@ all_facts = [fact for facts in sections.values() for fact in facts]
 @bot.message_handler(commands=["start"])
 def start(message):
     bot.send_message(message.chat.id, f"Привет, <b>{message.from_user.first_name}</b> \n\n Я бот-справочник. Выбери раздел:", parse_mode="HTML", reply_markup=mainKeyboard())
-    
 
 @bot.message_handler(commands=["help"])
 def help(message):
@@ -63,12 +62,16 @@ def mainKeyboard():
     for name in sections:
         keyboard.add(telebot.types.KeyboardButton(name))
     keyboard.add(telebot.types.KeyboardButton("Случайный факт🎲"))
-    keyboard.add(telebot.types.KeyboardButton("Закрыть"))
+    keyboard.add(telebot.types.KeyboardButton("Закрыть❌"))
     return keyboard
 
 @bot.message_handler(func = lambda m: m.text == "Случайный факт🎲")
 def random_fact(message):
     bot.send_message(message.chat.id, choice(all_facts), reply_markup=mainKeyboard())
+
+@bot.message_handler(func = lambda m: m.text == "Закрыть❌")
+def cancel(message):
+    bot.send_message(message.chat.id, "Клавиатура закрыта", reply_markup=telebot.types.ReplyKeyboardRemove())
 
 print("Hello World!")
 bot.polling()
